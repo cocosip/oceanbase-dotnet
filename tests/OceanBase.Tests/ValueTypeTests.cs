@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using Xunit;
 
@@ -73,7 +74,20 @@ public sealed class ValueTypeTests
 	[Fact]
 	public void MySqlDateTime_ToString_is_stable()
 	{
-		Assert.Equal("2024/1/2 3:04:05", new MySqlDateTime(2024, 1, 2, 3, 4, 5, 0).ToString());
+		// ToString() 直接委托给 GetDateTime().ToString()，跟随当前区域设置；
+		// 具体格式随系统 ICU 数据版本变化（zh-CN 在新版 CLDR 里是 y-MM-dd），
+		// 因此断言「与 DateTime.ToString() 一致」而非硬编码格式串
+		var original = CultureInfo.CurrentCulture;
+		CultureInfo.CurrentCulture = new CultureInfo("zh-CN");
+		try
+		{
+			var v = new MySqlDateTime(2024, 1, 2, 3, 4, 5, 0);
+			Assert.Equal(v.GetDateTime().ToString(), v.ToString());
+		}
+		finally
+		{
+			CultureInfo.CurrentCulture = original;
+		}
 	}
 
 	// ---------- MySqlDecimal ----------

@@ -159,14 +159,31 @@ dotnet run --project tests/OceanBase.DependencyInjection.Tests
 | 测试文件 | 覆盖内容 |
 |---|---|
 | `ConnectionStringBuilderTests` | 两种模式的全部关键字与别名、默认值、大小写/空白容忍、往返、非法取值 |
+| `ConnectionStringOptionsTests` | 选项注册表、同义词映射、索引器、`GetConnectionString` 去密码与缓存、文化无关解析 |
+| `ConnectionStringSetterTests` | 两个 builder 各约 65 个**属性 setter** 的赋值→回读→连接串往返（覆盖 `SetValue` 一侧） |
+| `ConnectionSettingsTests` | 多主机拆分、Unix socket/命名管道判定、TLS 版本位与密码套件、Guid 格式推导、池大小校验、`CloneWith` |
 | `ValueTypeTests` | `MySqlDateTime`/`MySqlDecimal`/`MySqlGeometry`、Oracle 时间戳与间隔类型、枚举成员数与取值 |
+| `OracleTemporalTests` | Oracle 时间戳/间隔的 NULL 语义、边界值、组件分解、格式化、字节布局、`IConvertible` |
 | `AdoNetSurfaceTests` | Provider 工厂、参数集合、属性集合、BulkCopy 映射、日志类型、异常层次、Command/DataAdapter |
+| `BatchAndSurfaceTests` | `MySqlBatch`/`MySqlBatchCommand(Collection)`、事务契约、`MySqlHelper.EscapeString`、零散公开类型 |
 | `SerializationTests` | `ByteBufferWriter`/`ByteArrayReader` 的字节序、length-encoded 变长编码、字符串编解码 |
+| `ByteHandlerTests` | `Stream`/`Socket`/`BufferedByteReader` 字节层，以及 `CompressedPayloadHandler` 的 zlib 压缩报文往返 |
 | `ColumnReaderTests` | 24 个可直接调用的列读取器（整数/布尔/YEAR 边界值、GUID 三种字节布局、DECIMAL） |
+| `DateTimeReaderTests` | 文本/二进制日期时间解析、零值日期三种策略、亚微秒精度限制、非法输入 |
 | `AuthenticationTests` | MySQL Secure Password Authentication（SHA-1）与 OceanBase SHA-256 scramble 变体、字符集字节宽度 |
 | `IdentifierAndTimerTests` | `NormalizedSchema` 标识符规范化（引号转义、Oracle 大写语义、三段式包名）、`TimerQueue` 簿记 |
 | `OracleUdtAndPayloadTests` | `OracleRefCursor.Null`、DbColumn 契约、`OkPayload` 前置条件、`ChangeUserPayload` 编码 |
+| `HandshakePayloadTests` | `HandshakeResponse41Payload` 能力位/字符集/认证响应、`ChangeUserPayload` 的 Oracle 用户名与 schema 改写 |
+| `TextUdtReaderTests` | Oracle 文本协议 UDT 字面量解析（元素分隔、嵌套、标量推断、属性数归一化、多行归一化） |
+| `OracleUdtCodecTests` | UDT 标量推断、字面量/二进制编解码、类型注册表、`OracleUdtContext` 访问与映射 |
+| `DbColumnTests` | `MySqlDbColumn`/`OracleDbColumn` 的列元数据映射（标志位、列长换算、DECIMAL 精度、IsLong 判定） |
+| `LobTests` | LOB 定位器、`OracleBlob`/`OracleClob` 的离线行为 |
+| `MySqlParameterCoercionTests` | 参数值到提供程序类型的强制转换与边界 |
 | `InternalTypeTests` | CRC32、列类型映射、Oracle UDT 十六进制、`Utility` 查找与扩容 |
+| `CoreHelpersTests` | `ServerVersion` 解析、`CommandListPosition`、负载均衡器、`CachedParameter`、`OceanBaseCRC32`、序列化整数 |
+| `TypeMapperTests` | 列类型名 ⇄ `MySqlDbType`/`OracleDbType` ⇄ `DbType` ⇄ CLR 类型、二进制列定义推导 |
+| `PayloadTests` | `OkPayload`/`ErrorPayload`/`EofPayload`/`ColumnCountPayload`/握手包/列定义包解析 |
+| `SqlParserTests` | SQL 语句类型识别与语句拆分 |
 | `DriverSmokeTests` | 连接串解析、DataSource 工厂、连接继承关系 |
 
 > internal 类型通过主程序集 `Properties/AssemblyInfo.cs` 中的
@@ -179,17 +196,17 @@ dotnet run --project tests/OceanBase.DependencyInjection.Tests
 
 ```bash
 pwsh -File tests/coverage/coverage.ps1
-pwsh -File tests/coverage/coverage.ps1 -Threshold 12   # 低于阈值退出码非 0
+pwsh -File tests/coverage/coverage.ps1 -Threshold 30   # 低于阈值退出码非 0
 ```
 
 原理是直接调用 NuGet 缓存中的 `coverlet.core` 对**测试实际加载的** `OceanBase.dll` 插桩，
 跑测试宿主收集命中，再用 `JsonReporter` 出报告。
 
-> 当前实测：**行 12.72% / 分支 11.74%**（测试 326 个：驱动 319 + DI 7）。
-> 上限受限于「无服务端」：`Core/`（会话/握手/结果集，9449 行）、LOB（1714 行）、
-> 事务与批量（1354 行）必须连真实数据库才能产生覆盖；
-> `Logging/Log.cs` 的 2152 行是 149 个源生成日志方法，需真实会话事件触发。
-> 可离线覆盖的部分约 2 万行，即使全部测到，整体上限也约 60%。
+> 当前实测：**行 35.07% / 分支 33.37%**（测试 1781 个：驱动 1774 + DI 7）。
+> 上限受限于「无服务端」：`Core/`（会话/握手/结果集）、LOB、事务与批量中的大部分路径
+> 必须连真实数据库才能产生覆盖；
+> `Logging/Log.cs` 是 149 个源生成日志方法，需真实会话事件触发。
+> 可离线覆盖的部分即使全部测到，整体上限也约 60%。
 
 ## 离线 / 受限环境
 
