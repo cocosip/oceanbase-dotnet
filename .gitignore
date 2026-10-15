@@ -356,3 +356,22 @@ ASALocalRun/
 docs/superpowers/
 .superpowers/
 
+# ---- 临时/调试目录（统一收纳，不入库）----
+# .scratch/ 是唯一的临时工作目录：反编译核对、API 探测、构建日志、实验工程都放这里
+.scratch/
+# 包缓存与 CLI 临时目录
+.packages/
+.dotnet-cli-home/
+# 打包输出
+artifacts/
+# 兼容旧的临时目录命名（历史遗留，勿在新工作中使用）
+_tfmcheck/
+_tfmcheck2/
+_apiprobe/
+_docprobe/
+_cipherprobe/
+_nulltest/
+_regen/
+_src-backup/
+_*.log
+

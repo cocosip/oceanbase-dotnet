@@ -1,0 +1,31 @@
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using OceanBase.Protocol.Serialization;
+
+namespace OceanBase.Core;
+
+/// <summary>
+/// <see cref="T:OceanBase.Core.ICommandPayloadCreator" /> creates the data for an "execute query" command for one or more <see cref="T:OceanBase.Core.IMySqlCommand" /> objects in a command list.
+/// </summary>
+internal interface ICommandPayloadCreator
+{
+	/// <summary>
+	/// Sends any data that is required to be sent to the server before the current command in the command list.
+	/// </summary>
+	/// <param name="commandListPosition">The <see cref="T:OceanBase.Core.CommandListPosition" /> giving the current command and current prepared statement.</param>
+	/// <param name="ioBehavior">The IO behavior.</param>
+	/// <param name="cancellationToken">A cancellation token to cancel the asynchronous operation.</param>
+	/// <returns>A <see cref="T:System.Threading.Tasks.ValueTask" /> representing the asynchronous operation or a completed <see cref="T:System.Threading.Tasks.ValueTask" /> if no data needed to be sent.</returns>
+	ValueTask SendCommandPrologueAsync(CommandListPosition commandListPosition, IOBehavior ioBehavior, CancellationToken cancellationToken);
+
+	/// <summary>
+	/// Writes the payload for an "execute query" command to <paramref name="writer" />.
+	/// </summary>
+	/// <param name="commandListPosition">The command list and its current position. This will be updated to the position of the next command to write (or past the end if there are no more commands).</param>
+	/// <param name="cachedProcedures">A <see cref="T:OceanBase.Core.CachedProcedure" /> for all the stored procedures in the command list, if any.</param>
+	/// <param name="writer">The <see cref="T:OceanBase.Protocol.Serialization.ByteBufferWriter" /> to write the payload to.</param>
+	/// <param name="appendSemicolon">Whether a statement-separating semicolon should be appended if it's missing.</param>
+	/// <returns><c>true</c> if a command was written; otherwise, <c>false</c> (if there were no more commands in the list).</returns>
+	bool WriteQueryCommand(ref CommandListPosition commandListPosition, IDictionary<string, CachedProcedure?> cachedProcedures, ByteBufferWriter writer, bool appendSemicolon);
+}

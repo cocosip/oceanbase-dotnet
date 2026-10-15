@@ -1,0 +1,74 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net8.0;net9.0;net10.0</TargetFrameworks>
+    <AssemblyName>OceanBase</AssemblyName>
+    <RootNamespace>OceanBase</RootNamespace>
+    <PackageId>Sharp.OceanBase.Data</PackageId>
+
+    <Description>OceanBase ADO.NET data provider for .NET (MySQL and Oracle modes). Source-rebuilt from OceanBase.ManagedDataAccess 1.3.1, API-compatible with the original assembly.</Description>
+    <PackageTags>OceanBase;mysql;oracle;ado;ado.net;database;driver;async</PackageTags>
+
+    <!-- 重建自官方程序集：保留上游版权与许可（MIT），详见 NOTICE -->
+    <Copyright>Copyright 2016-2025 Bradley Grainger; Copyright Sharp.OceanBase contributors</Copyright>
+
+    <!-- 与原程序集一致的版本特性（原 Properties/AssemblyInfo.cs 的等价项） -->
+    <AssemblyVersion>1.3.1.0</AssemblyVersion>
+    <FileVersion>1.3.1.0</FileVersion>
+    <InformationalVersion>1.3.1</InformationalVersion>
+
+    <!-- 原程序集标记 IsTrimmable / IsAotCompatible。
+         注意：不能直接用 <IsTrimmable>，它会引入 Microsoft.NET.ILLink.Tasks 包依赖；
+         这里改为直接输出与原程序集一致的 AssemblyMetadata 特性（见 Properties/AssemblyInfo.cs）。 -->
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+
+  <!--
+    源码组织：
+      - 根目录及子目录（Core/ Protocol/ ...）        : net8.0 / net9.0 / net10.0 共用的源码
+      - Frameworks/netstandard2.0/**                  : 仅 netstandard2.0 编译
+      - Frameworks/netstandard2.1/**                  : 仅 netstandard2.1 编译
+    原包在 netstandard 目标上使用了不同的 API（如 FrozenDictionary、DbBatch 等），
+    因此这三套源码是并列的、互斥的，不能用 #if 合并。
+  -->
+  <ItemGroup>
+    <Compile Remove="Frameworks/**/*.cs" />
+  </ItemGroup>  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <Compile Remove="**/*.cs" />
+    <Compile Include="Frameworks/netstandard2.0/**/*.cs" />
+    <Compile Include="Frameworks/Shared/**/*.cs" />
+    <Compile Include="Properties/AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <Compile Remove="**/*.cs" />
+    <Compile Include="Frameworks/netstandard2.1/**/*.cs" />
+    <Compile Include="Frameworks/Shared/**/*.cs" />
+    <Compile Include="Properties/AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <!-- net10.0 起：Microsoft.Extensions.* 走 10.x（见 Directory.Packages.props 的 TFM 分组） -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+
+  <!-- netstandard2.0/2.1 的额外依赖（与原始 nuspec 的 .NETStandard 组一致） -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" />
+    <PackageReference Include="System.Text.Encoding.CodePages" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" />
+    <PackageReference Include="System.Text.Encoding.CodePages" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

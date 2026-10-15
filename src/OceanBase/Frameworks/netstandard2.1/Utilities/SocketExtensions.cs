@@ -1,0 +1,36 @@
+using System;
+using System.Net.Sockets;
+
+namespace OceanBase.Utilities;
+
+internal static class SocketExtensions
+{
+	public static int Send(this Socket socket, ReadOnlyMemory<byte> data, SocketFlags flags)
+	{
+		return socket.Send(data.Span, flags);
+	}
+
+	public static void SetKeepAlive(this Socket socket, uint keepAliveTimeSeconds)
+	{
+		socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, optionValue: true);
+		if (keepAliveTimeSeconds != 0 && Utility.IsWindows())
+		{
+			uint num = ((keepAliveTimeSeconds > 4294967) ? uint.MaxValue : (keepAliveTimeSeconds * 1000));
+			socket.IOControl(IOControlCode.KeepAliveValues, new byte[12]
+			{
+				1,
+				0,
+				0,
+				0,
+				(byte)(num & 0xFF),
+				(byte)((num >> 8) & 0xFF),
+				(byte)((num >> 16) & 0xFF),
+				(byte)((num >> 24) & 0xFF),
+				232,
+				3,
+				0,
+				0
+			}, null);
+		}
+	}
+}

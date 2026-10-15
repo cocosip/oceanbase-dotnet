@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net8.0;net9.0;net10.0</TargetFrameworks>
+    <AssemblyName>OceanBase.DependencyInjection</AssemblyName>
+    <RootNamespace>OceanBase.DependencyInjection</RootNamespace>
+    <PackageId>Sharp.OceanBase.Data.DependencyInjection</PackageId>
+
+    <Description>Dependency injection integration for Sharp.OceanBase.Data (OceanBase ADO.NET provider).</Description>
+    <PackageTags>OceanBase;mysql;oracle;ado;ado.net;database;di;dependency injection</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OceanBase\OceanBase.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

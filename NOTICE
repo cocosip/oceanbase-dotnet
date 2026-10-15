@@ -1,0 +1,49 @@
+# NOTICE
+
+## 项目来源
+
+本项目的驱动源码（`src/OceanBase`）是 **OceanBase.ManagedDataAccess 1.3.1** 程序集的
+**源码重建**（source-rebuilt）产物，通过反编译 `lib/net10.0/OceanBase-ManagedDataAccess.dll`
+并结合 `lib/net8.0` / `lib/net9.0` 的程序集核对多目标框架差异后重建得到。
+
+重建过程保留了原始公开 API 的**逐项一致性**（2115 个 API 项，差异为 0），
+该一致性由测试项目中的 `PublicApiParityTests` 自动校验。
+
+## 上游版权
+
+`OceanBase.ManagedDataAccess` 是 **MySqlConnector** 的 OceanBase 发行版。
+
+- MySqlConnector: https://github.com/mysql-net/MySqlConnector
+- 上游版本: MySqlConnector commit `01eb03a65dfbc3c81cb7079dd2b0e35e319ae047`（对应 OceanBase.ManagedDataAccess 1.3.1）
+- 上游版权: Copyright 2016-2025 Bradley Grainger
+- 上游许可: MIT
+
+原始程序集元数据（供对照）：
+
+| 项 | 值 |
+|---|---|
+| AssemblyName | `OceanBase-ManagedDataAccess` |
+| AssemblyVersion | `1.3.1.0` |
+| InformationalVersion | `1.3.1+01eb03a65dfbc3c81cb7079dd2b0e35e319ae047` |
+| PublicKeyToken | `d33d3e53aa5f8c92`（强名称） |
+
+## 与原包的差异说明
+
+1. **程序集名称**：由 `OceanBase-ManagedDataAccess` 改为 `OceanBase`
+   （包 ID 为 `Sharp.OceanBase.Data`）。**命名空间保持 `OceanBase` 不变**，以保证与官方文档示例一致、可零改动迁移。
+2. **强名称签名**：原始程序集为强名称（`PublicKeyToken=d33d3e53aa5f8c92`）。
+   本项目不持有原私钥，**不冒充原签名者**，因此默认未签名。若要发布 .NET Framework 目标，需自建 `.snk` 后开启签名。
+3. **目标框架**：原始包提供 9 个 TFM；本项目当前提供 `net8.0` / `net9.0` / `net10.0`。
+4. **条件编译**：原包内部按 TFM 使用不同实现（如 net8.0 用 `object` 锁、net9.0+ 用 `System.Threading.Lock`；
+   net10.0 用 `PemEncoding.TryFindUtf8`、net8/9 用 `PemEncoding.TryFind`；net10.0 用 `Convert.FromHexString` 的 span 重载等）。
+   本项目以 `#if` 条件编译忠实还原了这些差异。
+
+## 第三方依赖
+
+| 包 | 许可 |
+|---|---|
+| Microsoft.Extensions.Logging.Abstractions | MIT |
+| Microsoft.Extensions.DependencyInjection.Abstractions | MIT |
+| Microsoft.Extensions.DependencyInjection | MIT |
+| Microsoft.Extensions.Configuration.Abstractions | MIT |
+| Microsoft.Extensions.Options | MIT |

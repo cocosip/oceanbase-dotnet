@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/OceanBase.DependencyInjection/OceanBase.DependencyInjection.csproj" />
+    <Project Path="src/OceanBase/OceanBase.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/OceanBase.DependencyInjection.Tests/OceanBase.DependencyInjection.Tests.csproj" />
+    <Project Path="tests/OceanBase.Tests/OceanBase.Tests.csproj" />
+  </Folder>
+</Solution>
