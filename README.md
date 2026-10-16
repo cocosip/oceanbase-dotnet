@@ -168,7 +168,9 @@ dotnet run --project tests/OceanBase.DependencyInjection.Tests
 | `BatchAndSurfaceTests` | `MySqlBatch`/`MySqlBatchCommand(Collection)`、事务契约、`MySqlHelper.EscapeString`、零散公开类型 |
 | `SerializationTests` | `ByteBufferWriter`/`ByteArrayReader` 的字节序、length-encoded 变长编码、字符串编解码 |
 | `ByteHandlerTests` | `Stream`/`Socket`/`BufferedByteReader` 字节层，以及 `CompressedPayloadHandler` 的 zlib 压缩报文往返 |
+| `StandardPayloadHandlerTests` | `StandardPayloadHandler` 的封帧/拆帧、包序号状态机、乱序与断流错误路径 |
 | `ColumnReaderTests` | 24 个可直接调用的列读取器（整数/布尔/YEAR 边界值、GUID 三种字节布局、DECIMAL） |
+| `MoreColumnReaderTests` | BIT/VECTOR/TIME/Oracle 间隔与时戳列读取器字节解析、`ColumnReader.Create` 按列类型与连接选项的分发矩阵 |
 | `DateTimeReaderTests` | 文本/二进制日期时间解析、零值日期三种策略、亚微秒精度限制、非法输入 |
 | `AuthenticationTests` | MySQL Secure Password Authentication（SHA-1）与 OceanBase SHA-256 scramble 变体、字符集字节宽度 |
 | `IdentifierAndTimerTests` | `NormalizedSchema` 标识符规范化（引号转义、Oracle 大写语义、三段式包名）、`TimerQueue` 簿记 |
@@ -182,8 +184,12 @@ dotnet run --project tests/OceanBase.DependencyInjection.Tests
 | `InternalTypeTests` | CRC32、列类型映射、Oracle UDT 十六进制、`Utility` 查找与扩容 |
 | `CoreHelpersTests` | `ServerVersion` 解析、`CommandListPosition`、负载均衡器、`CachedParameter`、`OceanBaseCRC32`、序列化整数 |
 | `TypeMapperTests` | 列类型名 ⇄ `MySqlDbType`/`OracleDbType` ⇄ `DbType` ⇄ CLR 类型、二进制列定义推导 |
+| `ArrayBindingValidationTests` | Oracle 数组绑定（ArrayBinding）参数校验规则与 UDT 类型名解析 |
 | `PayloadTests` | `OkPayload`/`ErrorPayload`/`EofPayload`/`ColumnCountPayload`/握手包/列定义包解析 |
+| `CommandPayloadTests` | 预编译语句响应、认证切换/续传、caching_sha2 应答、COM_QUERY、LOCAL INFILE、REF CURSOR 取数包 |
 | `SqlParserTests` | SQL 语句类型识别与语句拆分 |
+| `OfflineSurfaceTests` | PING/QUIT/RESET/INIT DB 载荷、ADO.NET 事件参数类、BulkCopy/BulkLoader 构造与离线校验、`ConnectionOpenedContext` |
+| `MiscOfflineTests` | 三种值枚举器（DataTable/DbDataReader/IDataReader）、`MySqlError`、`MySqlProvidePasswordContext` |
 | `DriverSmokeTests` | 连接串解析、DataSource 工厂、连接继承关系 |
 
 > internal 类型通过主程序集 `Properties/AssemblyInfo.cs` 中的
@@ -201,8 +207,10 @@ pwsh -File tests/coverage/coverage.ps1 -Threshold 30   # 低于阈值退出码�
 
 原理是直接调用 NuGet 缓存中的 `coverlet.core` 对**测试实际加载的** `OceanBase.dll` 插桩，
 跑测试宿主收集命中，再用 `JsonReporter` 出报告。
+脚本会把插桩用的临时目录重定向到 `.scratch\tmpcov`，避免安全软件（如火绒）
+拦截「向系统临时目录复制 DLL」的插桩动作。
 
-> 当前实测：**行 35.07% / 分支 33.37%**（测试 1781 个：驱动 1774 + DI 7）。
+> 当前实测：**行 38.41% / 分支 35.75%**（测试 1911 个：驱动 1904 + DI 7）。
 > 上限受限于「无服务端」：`Core/`（会话/握手/结果集）、LOB、事务与批量中的大部分路径
 > 必须连真实数据库才能产生覆盖；
 > `Logging/Log.cs` 是 149 个源生成日志方法，需真实会话事件触发。

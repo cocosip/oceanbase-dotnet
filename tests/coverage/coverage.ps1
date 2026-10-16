@@ -44,6 +44,14 @@ if (-not (Test-Path $testExe)) {
 $probeDir = Join-Path $Root '.scratch\coverage-probe'
 New-Item -ItemType Directory -Force -Path $probeDir | Out-Null
 
+# coverlet 插桩时会把模块备份到 %TEMP%\OceanBase_<guid>.dll，
+# 该行为模式（未签名 exe 向临时目录复制 DLL）可能被安全软件（如火绒）拦截，
+# 导致 UnauthorizedAccessException。把 TEMP 重定向到仓库内的已忽略目录即可绕开。
+$workTemp = Join-Path $Root '.scratch\tmpcov'
+New-Item -ItemType Directory -Force -Path $workTemp | Out-Null
+$env:TMP = $workTemp
+$env:TEMP = $workTemp
+
 # 生成一次性测量工具（放在已忽略的 .scratch 下）
 @'
 <Project Sdk="Microsoft.NET.Sdk">
